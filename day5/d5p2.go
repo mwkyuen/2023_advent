@@ -52,6 +52,28 @@ func set_group(num []int) Group {
     return g
 }
 
+func makeRange(min, max int) []int {
+    a := make([]int, max-min+1)
+    for i := range a {
+        a[i] = min + i
+    }
+    return a
+}
+
+func get_range_of_seeds(nums []int) []int {
+    var num_start int
+    var num_range int
+    var seed_range []int
+    for i := 0; i < len(nums); i += 2 {
+        var mrange []int
+        num_start = nums[i]
+        num_range = nums[i+1]
+        mrange = makeRange(num_start, num_start + num_range - 1 )
+        seed_range = append(seed_range, mrange...)
+    }
+    return seed_range
+}
+
 func main() {
 
     filePath := os.Args[1]
@@ -64,7 +86,7 @@ func main() {
 
     lines := strings.Split(content, "\n")
     temp := strings.Split(lines[0], " ")
-    seeds := convert_to_int(temp[1:len(temp)])
+    seeds := get_range_of_seeds(convert_to_int(temp[1:len(temp)]))
     lines = lines[2:len(lines)]
     var temp_line []string
     almanac := make(map[string][]Group)
