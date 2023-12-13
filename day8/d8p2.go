@@ -11,23 +11,29 @@ type Directions struct {
     right string
 }
 
-func check_cond (locations []string) bool {
-    for _, loc:= range locations {
-        if loc[2:3] != "Z" {
-            return false
-        } 
+// Modified from: https://siongui.github.io/2017/06/03/go-find-lcm-by-gcd/
+// greatest common divisor (GCD) via Euclidean algorithm
+func GCD(a, b int) int {
+    for b != 0 {
+        t := b
+        b = a % b
+        a = t
     }
-    return true
+    return a
 }
 
-func update_locations (locations []string, signposts map[string]Directions, d rune) {
-    for i, loc := range locations{
-        if d == 'R'{
-            locations[i] = signposts[loc].right
-        } else {
-            locations[i] = signposts[loc].left
-        }
+// find Least Common Multiple (LCM) via GCD
+func LCM(integers []int) int {
+    a := integers[0]
+    b := integers[1]
+    result := a * b / GCD(a, b)
+
+    for i := 2; i < len(integers); i++ {
+        temp := []int{result, integers[i]}
+        result = LCM(temp)
     }
+
+    return result
 }
 
 func main() {
@@ -41,7 +47,7 @@ func main() {
     content := string(b) 
 
     lines := strings.Split(content, "\n")
-    // directions := []rune(lines[0])
+    directions := []rune(lines[0])
     lines = lines[2:len(lines)-1]
     signposts := make(map[string]Directions, len(lines))
     var locations []string
@@ -54,34 +60,37 @@ func main() {
         val = strings.TrimSpace(s[1])
         left_right := strings.Split(val[1:len(val)-1], ",")
         signposts[key] = Directions{left:strings.TrimSpace(left_right[0]), right:strings.TrimSpace(left_right[1])}
-        if key[2:3] == "Z" {
+        if key[2:3] == "A" {
             locations = append(locations, key)
         }
     }
-    fmt.Println(locations)
-    fmt.Println(signposts)
-    // var next_direction rune
+
+    var next_direction rune
     
-    // steps := 0
-    // for i:=0; ;i++{
-    //     if i == len(directions){
-    //             i=0
-    //         }
-    //     next_direction = directions[i]
-    //     if next_direction == 'R' {
-    //         update_locations(locations, signposts, 'R')
-    //         steps++
-    //     } else {
-    //         update_locations(locations, signposts, 'L')
-    //         steps++
-    //     }
-    //     if check_cond(locations) {
-    //         break
-    //     }
-        
-    // }
+    var steps []int
+    for _, location := range locations {
+        temp_step := 0
+        for i:=0; ;i++{
+            if i == len(directions){
+                i=0
+            }
+            next_direction = directions[i]
+            if location[2:3] == "Z" {
+                steps = append(steps, temp_step)
+                break
+            }
+            if next_direction == 'R' {
+                location = signposts[location].right
+                temp_step++
+            } else {
+                location = signposts[location].left
+                temp_step++
+            }
+        }
+    }
     
-    // fmt.Println(steps)
+    total := LCM(steps)
+    fmt.Println(total)
 }
 
 
